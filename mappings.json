@@ -1,0 +1,9 @@
+{
+  "mappings": {
+    "properties": {
+        "time": {
+          "type": "date" 
+        }
+      }
+  }
+}

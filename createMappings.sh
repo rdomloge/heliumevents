@@ -1,0 +1,1 @@
+curl -H "Content-Type: application/json" -X PUT -d @mappings.json localhost:9200/clean-rose-parakeet

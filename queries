@@ -1,0 +1,12 @@
+# 
+
+# Beacon sent
+type : poc_receipts_v1 and NOT (challenger : 112Xa4p36ExdVDktAPFKx9zd8EwiMw7vC35hxyqiiYANC527BLiF) and path.challengee : 112Xa4p36ExdVDktAPFKx9zd8EwiMw7vC35hxyqiiYANC527BLiF
+
+
+# Scripted field to calculate HNT from bones (the minor currency that you are actually rewarded in)
+if(doc['rewards.amount'].size() > 0) { 
+  return doc['rewards.amount'].value / 100000000.0; 
+} 
+return 0;
+    

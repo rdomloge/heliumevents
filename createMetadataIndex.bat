@@ -1,0 +1,1 @@
+curl -H "Content-Type: application/json" -X PUT -d @metadataIndex.json localhost:9200/metadataindex/_doc/metadata
