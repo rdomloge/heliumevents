@@ -33,7 +33,7 @@ public class HeliumApi {
 
     @Value("${USE_HELIUM_API:false}")
     private boolean useHeliumApi;
-    @Value("${USE_STAKEJOY_API:true}")
+    @Value("${USE_STAKEJOY_API:false}")
     private boolean useStakejoyApi;
 
     private String HS_BASE;
@@ -52,6 +52,7 @@ public class HeliumApi {
     @PostConstruct
     public void confid() {
         if(useHeliumApi && useStakejoyApi) throw new IllegalStateException("Can't use both APIs - choose one");
+        if( ! useHeliumApi && ! useStakejoyApi) useHeliumApi = true;
 
         if(useStakejoyApi) 
             HS_BASE = HS_BASE_STAKEJOY;

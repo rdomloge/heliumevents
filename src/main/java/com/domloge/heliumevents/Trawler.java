@@ -32,7 +32,7 @@ public class Trawler {
     @Autowired
     private ElasticSearchApi esApi;
 
-    @Value("${HOTSPOT:112Xa4p36ExdVDktAPFKx9zd8EwiMw7vC35hxyqiiYANC527BLiF}")
+    @Value("${HOTSPOT}")
     private String hotspot;
 
     private String hotspotName;
@@ -94,7 +94,7 @@ public class Trawler {
                     esApi.postDoc(hotspotName, identifier, docStr);
                 }
                 storeMetadata(dateCursor);
-                logger.info("Added {} docs for date", transactions.size());
+                logger.debug("Added {} docs for date", transactions.size());
             }
             else {
                 logger.info("No transactions on {}", dateCursor.toString());

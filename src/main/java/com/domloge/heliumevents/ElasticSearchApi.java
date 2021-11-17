@@ -22,7 +22,7 @@ public class ElasticSearchApi {
 
     private RestTemplate restTemplate = new RestTemplate();
 
-    @Value(value = "${ES_BASE:http://localhost:9200}")
+    @Value(value = "${ES_SERVER_ADDRESS}")
     private String elasticSearchBase;
 
     private String elasticSearchUrlTemplate;
