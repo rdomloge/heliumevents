@@ -1,12 +1,12 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: activity
+  name: activity-james
   namespace: heliumevents
 spec:
-  successfulJobsHistoryLimit: 3
-  failedJobsHistoryLimit: 3
-  schedule: "*/3 * * * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  schedule: "0 */6 * * *"
   jobTemplate:
     spec:
       template:
@@ -17,7 +17,7 @@ spec:
             imagePullPolicy: IfNotPresent
             env:
             - name: HOTSPOT
-              value: "112Xa4p36ExdVDktAPFKx9zd8EwiMw7vC35hxyqiiYANC527BLiF"
+              value: "112KVEvBawFScQeXgmzLGAZLG3mAozQFchig3NzPKBi5FYKvQGdk"
             - name: ES_SERVER_ADDRESS
               value: "http://elasticsearch-service:9200"
             - name: USE_STAKEJOY_API

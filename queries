@@ -1,7 +1,11 @@
-# 
+# Challenges
+type : poc_receipts_v1 and challenger : 112Xa4p36ExdVDktAPFKx9zd8EwiMw7vC35hxyqiiYANC527BLiF
 
 # Beacon sent
 type : poc_receipts_v1 and path.challengee : 112Xa4p36ExdVDktAPFKx9zd8EwiMw7vC35hxyqiiYANC527BLiF
+
+# Witnesses (inc invalid)
+type : poc_receipts_v1 and (not challenger: 112Xa4p36ExdVDktAPFKx9zd8EwiMw7vC35hxyqiiYANC527BLiF) and (not path.challengee : 112Xa4p36ExdVDktAPFKx9zd8EwiMw7vC35hxyqiiYANC527BLiF) and (path.witnesses.gateway : 112Xa4p36ExdVDktAPFKx9zd8EwiMw7vC35hxyqiiYANC527BLiF)
 
 
 # Scripted field to calculate HNT from bones (the minor currency that you are actually rewarded in)

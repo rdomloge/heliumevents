@@ -72,14 +72,14 @@ public class Trawler {
             DateTime latestTrawlCompleteDay = getLatestSuccessfulTrawlCompleteDay(hotspotName);
             if(null == latestTrawlCompleteDay) latestTrawlCompleteDay = hsBday;
             
-            logger.info("Synching from {} for hotspot {}, born on {}", latestTrawlCompleteDay, hotspotName, hsBday);
+            logger.info("Synching from {} for hotspot {}, born on {}", latestTrawlCompleteDay.toString("dd-MMM-yyyy"), hotspotName, hsBday.toString("dd-MMM-yyyy' 'hh:mm"));
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
 
-            DateTime dateCursor = latestTrawlCompleteDay;
+            DateTime dateCursor = latestTrawlCompleteDay.withTime(0, 0, 0, 0);
             
             while(dateCursor.isBefore(new DateTime())) {
-                logger.info("Fetching events for {}", dateCursor.toString());
+                logger.info("Fetching events for {}", dateCursor.toString("dd-MMM-yyyy"));
                 JsonObject response = heliumApi.fetchHotspotActivityForDate(hotspot, dateCursor);
                 if(response.has("cursor")) {
                     JsonArray transactions = heliumApi.fetchTransactions(
