@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: activity
+  namespace: heliumevents
+spec:
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  schedule: "*/2 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: heliumevents-trawler
+            image: rdomloge/heliumevents:2.0
+            imagePullPolicy: IfNotPresent
+            env:
+            - name: HOTSPOT
+              value: "112Xa4p36ExdVDktAPFKx9zd8EwiMw7vC35hxyqiiYANC527BLiF"
+            - name: ES_SERVER_ADDRESS
+              value: "http://elasticsearch-service:9200"
+            - name: USE_STAKEJOY_API
+              value: "true"
+          restartPolicy: OnFailure

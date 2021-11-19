@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: elasticsearch
+  namespace: heliumevents
+spec:
+  serviceName: elasticsearch-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elasticsearch
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: elasticsearch
+        version: v1
+    spec:
+      containers:
+        - name: elasticsearch
+          env:
+            - name: ES_JAVA_OPTS
+              value: "-Xmx1024m"
+            - name: "discovery.type"
+              value: "single-node"
+          image: elasticsearch:7.14.2
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "2048Mi"
+          ports:
+            - containerPort: 9200
+              name: api
+            - containerPort: 9300
+              name: other
