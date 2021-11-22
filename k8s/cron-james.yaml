@@ -1,12 +1,12 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: activity-james
+  name: heliumevents-trawler-james
   namespace: heliumevents
 spec:
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 1
-  schedule: "0 */6 * * *"
+  schedule: "*/3 * * * *"
   jobTemplate:
     spec:
       template:

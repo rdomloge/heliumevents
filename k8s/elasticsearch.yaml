@@ -37,3 +37,10 @@ spec:
               name: api
             - containerPort: 9300
               name: other
+          volumeMounts:
+          - name: elasticsearch-data
+            mountPath: /usr/share/elasticsearch/data
+      volumes:
+      - name: elasticsearch-data
+        persistentVolumeClaim:
+          claimName: heliumevents-data
