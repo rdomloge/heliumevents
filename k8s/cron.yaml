@@ -13,7 +13,7 @@ spec:
         spec:
           containers:
           - name: heliumevents-trawler
-            image: rdomloge/heliumevents:2.0.2
+            image: rdomloge/heliumevents:2.1.1
             imagePullPolicy: IfNotPresent
             env:
             - name: HOTSPOT
@@ -21,5 +21,5 @@ spec:
             - name: ES_SERVER_ADDRESS
               value: "http://elasticsearch-service:9200"
             - name: USE_STAKEJOY_API
-              value: "true"
+              value: "false"
           restartPolicy: OnFailure

@@ -30,13 +30,30 @@ spec:
               cpu: "100m"
               memory: "512Mi"
             limits:
-              cpu: "1000m"
+              cpu: "4000m"
               memory: "2048Mi"
           ports:
             - containerPort: 9200
               name: api
             - containerPort: 9300
               name: other
+          livenessProbe:
+            httpGet:
+              port: 9200
+              path: /_cluster/health
+            initialDelaySeconds: 40
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              port: 9200
+              path: /_cluster/health
+          startupProbe:
+            tcpSocket:
+              port: 9300
+            initialDelaySeconds: 120
+            timeoutSeconds: 2
+            failureThreshold: 10
+            periodSeconds: 10
           volumeMounts:
           - name: heliumevents-data
             mountPath: /usr/share/elasticsearch/data
