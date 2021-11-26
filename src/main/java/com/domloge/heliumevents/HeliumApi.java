@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StopWatch;
 
 
 
@@ -56,7 +57,9 @@ public class HeliumApi {
     private JsonObject hotspotDetails;
     
     private HttpResponse<String> sendRequest(String url) throws HeliumApiException {
-
+        StopWatch sw = new StopWatch("Helium Api"); 
+        sw.start("call");
+        logger.debug("Calling {}", url);
         HttpRequest req = HttpRequest.newBuilder()
             .uri(URI.create(url))
             .setHeader("user-agent", USER_AGENT)
@@ -65,6 +68,10 @@ public class HeliumApi {
         HttpResponse<String> resp;
         try {
             resp = _client.send(req, BodyHandlers.ofString());
+            sw.stop();
+            if(logger.isDebugEnabled()) {
+                logger.debug("Timing: Helium call took {}s", sw.getTotalTimeSeconds());
+            }
         } 
         catch (IOException | InterruptedException e) {
             throw new HeliumApiException("Failed to call Helium API", e);
@@ -85,7 +92,7 @@ public class HeliumApi {
     }
 
     @PostConstruct
-    public void confid() {
+    public void config() {
         if(useHeliumApi && useStakejoyApi) throw new IllegalStateException("Can't use both APIs - choose one");
         if( ! useHeliumApi && ! useStakejoyApi) useHeliumApi = true;
 
@@ -97,7 +104,7 @@ public class HeliumApi {
         logger.info("Using {} API", useHeliumApi ? "Helium" : "Stakejoy");
 
         HS_ACTIVITY_BASE = HS_BASE+"/v1/hotspots/%s/activity";
-        HS_ACTIVITY_CURSOR = HS_ACTIVITY_BASE + "?limit=%s&filter_types=%s&min_time=%s&max_time=%s";
+        HS_ACTIVITY_CURSOR = HS_ACTIVITY_BASE + "?min_time=%s&max_time=%s";//&limit=%s";
         HS_ACTIVITY_DATA = HS_ACTIVITY_BASE + "?cursor=%s";
         HS_DETAILS = HS_BASE+"/v1/hotspots/%s";
 
@@ -134,9 +141,8 @@ public class HeliumApi {
         // Build the URL
         String min_time = format.format(date.withTime(0, 0, 0, 0).toDate());
         String max_time = format.format(date.withTime(23, 59, 59, 999).toDate());
-        String filter_types = "";//"poc_receipts_v1";
-        int limit = 99;
-        String url = String.format(HS_ACTIVITY_CURSOR, hotspotAddress, limit, filter_types, min_time, max_time);
+        // int limit = 2;
+        String url = String.format(HS_ACTIVITY_CURSOR, hotspotAddress, min_time, max_time);
 
         // Process the response and extract the cursor hash
         HttpResponse<String> resp = sendRequest(url);
@@ -150,14 +156,13 @@ public class HeliumApi {
         return jsObj;
     }
 
-    public JsonArray fetchTransactions(String hotspotAddress, String cursor, String hotspotName) throws HeliumApiException {
+    public JsonObject fetchTransactions(String hotspotAddress, String cursor, String hotspotName) throws HeliumApiException {
         // Fetch the data
         String url = String.format(HS_ACTIVITY_DATA, hotspotAddress, cursor);
         HttpResponse<String> resp = sendRequest(url);
 
         // Process the transactions
         String json = resp.body();
-        JsonObject jsObj = JsonParser.parseString(json).getAsJsonObject();
-        return (JsonArray) jsObj.get("data");
+        return JsonParser.parseString(json).getAsJsonObject();
     }
 }

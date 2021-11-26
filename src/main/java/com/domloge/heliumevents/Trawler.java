@@ -1,13 +1,12 @@
 package com.domloge.heliumevents;
 
-import java.io.IOException;
+import java.math.BigDecimal;
 
 import javax.annotation.PostConstruct;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 
 import org.joda.time.DateTime;
@@ -58,8 +57,23 @@ public class Trawler {
         // create mapping for timestamp in documents
         ResponseEntity<String> mappingJson = esApi.getRaw("/"+hotspotName+"/_mapping");
         if(mappingJson.getStatusCode() != HttpStatus.OK) {
-            logger.info("Setting up 'time' mapping as a date field");
-            esApi.postDocRaw("/" + hotspotName, "{ \"mappings\": { \"properties\": { \"time\": { \"type\": \"date\" } } } }");
+            JsonObject payload = new JsonObject();
+            JsonObject mappings = new JsonObject();
+            payload.add("mappings", mappings);
+            JsonObject properties = new JsonObject();
+            mappings.add("properties", properties);
+
+            JsonObject timeMapping = new JsonObject();
+            timeMapping.addProperty("type", "date");
+            properties.add("time", timeMapping);
+
+            JsonObject challengeeLocationMapping = new JsonObject();
+            challengeeLocationMapping.addProperty("type", "geo_point");
+            properties.add("path.challengee_location", challengeeLocationMapping);
+
+            logger.info("Setting up mappings for time (date field) and path.challengee_location (geo_point)");
+            String json = new Gson().toJson(payload);
+            esApi.postDocRaw("/" + hotspotName, json);
         }
         
         trawl();
@@ -79,19 +93,28 @@ public class Trawler {
             DateTime dateCursor = latestTrawlCompleteDay.withTime(0, 0, 0, 0);
             
             while(dateCursor.isBefore(new DateTime())) {
-                logger.info("Fetching events for {}", dateCursor.toString("dd-MMM-yyyy"));
+                logger.debug("Fetching events for {}", dateCursor.toString("dd-MMM-yyyy"));
+                Stats stats = new Stats();
+                int transactionCount = 0;
                 JsonObject response = heliumApi.fetchHotspotActivityForDate(hotspot, dateCursor);
-                if(response.has("cursor")) {
-                    JsonArray transactions = heliumApi.fetchTransactions(
+                if(response.has("data")) {
+                    transactionCount += processData(response.getAsJsonArray("data"), stats);
+                }
+
+                while(response.has("cursor")) {
+                    response = heliumApi.fetchTransactions(
                         hotspot, 
                         response.get("cursor").getAsString(),
                         hotspotName);
-                    processData(transactions);
-                }
-                if(response.has("data")) {
-                    processData(response.getAsJsonArray("data"));
+                    transactionCount += processData((JsonArray) response.get("data"), stats);
                 }
                 
+                logger.info("{} processed, fetched {} transactions: {} new, {} already known", 
+                    dateCursor.toString("dd-MMM-yyyy"), 
+                    transactionCount,
+                    stats.getNewDocs(),
+                    stats.getDuplicateDocs());
+
                 storeMetadata(hotspotName, dateCursor);
                 dateCursor = dateCursor.plusDays(1);
             }
@@ -111,18 +134,23 @@ public class Trawler {
         }
     }
 
-    private void processData(JsonArray transactions) {
+    private int processData(JsonArray transactions, Stats stats) {
         for(int i=0; i < transactions.size(); i++) {
             JsonObject doc = transactions.get(i).getAsJsonObject();
             patch(doc);
 
             String identifier = doc.get("hash").getAsString();
-            String docStr = new Gson().toJson(doc);
-            logger.trace(docStr);
-            
-            esApi.postDoc(hotspotName, identifier, docStr);
+            if( ! esApi.exists(hotspotName, identifier)) {
+                String docStr = new Gson().toJson(doc);
+                logger.trace(docStr);
+                esApi.postDoc(hotspotName, identifier, docStr);
+                stats.incrementNewDocs();
+            }
+            else {
+                stats.incrementDuplicateDocs();
+            }
         }
-        logger.debug("Added {} docs for date", transactions.size());
+        return transactions.size();
     }
 
     private static final String LAST_RUN_DATE = "lastRun";
@@ -146,5 +174,32 @@ public class Trawler {
         DateTime epoch = new DateTime(timeSeconds*1000);
         String esFormatTimestamp = epoch.toString("YYYY-MM-dd'T'HH:mm:ssZ");
         heliumDoc.add("time", new JsonPrimitive(esFormatTimestamp));
+
+        if(heliumDoc.get("type").getAsString().equals("poc_receipts_v1")) patchChallengeeLocation(heliumDoc);
+        if(heliumDoc.get("type").getAsString().equals("rewards_v2")) patchHNT(heliumDoc);
     }
+
+    private void patchHNT(JsonObject heliumDoc) {
+        JsonArray rewards = heliumDoc.get("rewards").getAsJsonArray();
+        long totalBones = 0;
+        for(int i=0; i < rewards.size(); i++) {
+            totalBones += rewards.get(i).getAsJsonObject().get("amount").getAsLong();
+        }
+        heliumDoc.addProperty("totalBones", totalBones);
+        heliumDoc.addProperty("totalHnt", new BigDecimal(totalBones).divide(new BigDecimal(100000000)));
+    }
+
+    private void patchChallengeeLocation(JsonObject heliumDoc) {
+        JsonObject path = heliumDoc.get("path").getAsJsonArray().get(0).getAsJsonObject();
+        float lon = -1; 
+        float lat = -1;
+        if(path.has("challengee_lon")) {
+            lon = path.get("challengee_lon").getAsFloat();
+        }
+        if(path.has("challengee_lat")) {
+            lat = path.get("challengee_lat").getAsFloat();
+        }
+        path.add("challengee_location", new JsonPrimitive(lat+","+lon));
+    }
+
 }
