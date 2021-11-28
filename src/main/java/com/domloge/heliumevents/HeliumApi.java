@@ -22,7 +22,9 @@ import com.google.gson.JsonParser;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 import org.springframework.util.StopWatch;
@@ -51,11 +53,14 @@ public class HeliumApi {
 
     private static final DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"); //2021-05-11T01:39:53Z
 
-    @Value("${USER_AGENT:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36}")
+    @Value("${USER_AGENT:heliumevents}")
     private String USER_AGENT;
 
     @Value("${INTERVAL:500}")
     private long interval;
+
+    @Autowired
+    private ResourceLoader resourceLoader;
 
     private HttpClient _client = HttpClient.newHttpClient();
 
@@ -64,12 +69,12 @@ public class HeliumApi {
     
 
     @PostConstruct
-    public void config() throws FileNotFoundException {
+    public void config() throws IOException {
 
-        // int lineNum = (int) (Math.random() * 100);
-        // Scanner s = new Scanner(ResourceUtils.getFile("classpath:useragents.txt"));
-        // for(int i=0; i < lineNum; i++) s.nextLine();
-        // USER_AGENT = s.nextLine();
+        int lineNum = (int) (Math.random() * 100);
+        Scanner s = new Scanner(resourceLoader.getResource("classpath:useragents.txt").getInputStream());
+        for(int i=0; i < lineNum; i++) s.nextLine();
+        USER_AGENT = s.nextLine();
         logger.debug("Using user agent '{}'", USER_AGENT);
 
         if(useHeliumApi && useStakejoyApi) throw new IllegalStateException("Can't use both APIs - choose one");
@@ -105,6 +110,9 @@ public class HeliumApi {
         HttpResponse<String> resp;
         try {
             resp = _client.send(req, BodyHandlers.ofString());
+            if(logger.isTraceEnabled()) {
+                logger.trace("<- {}", resp.body());
+            }
             sw.stop();
             if(logger.isDebugEnabled()) {
                 logger.debug("Timing: Helium call took {}s", sw.getTotalTimeSeconds());
