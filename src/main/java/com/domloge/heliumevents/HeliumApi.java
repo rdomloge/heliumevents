@@ -1,17 +1,21 @@
 package com.domloge.heliumevents;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Scanner;
 
 import javax.annotation.PostConstruct;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -20,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ResourceUtils;
 import org.springframework.util.StopWatch;
 
 
@@ -56,6 +61,34 @@ public class HeliumApi {
 
     private JsonObject hotspotDetails;
     
+    
+
+    @PostConstruct
+    public void config() throws FileNotFoundException {
+
+        // int lineNum = (int) (Math.random() * 100);
+        // Scanner s = new Scanner(ResourceUtils.getFile("classpath:useragents.txt"));
+        // for(int i=0; i < lineNum; i++) s.nextLine();
+        // USER_AGENT = s.nextLine();
+        logger.debug("Using user agent '{}'", USER_AGENT);
+
+        if(useHeliumApi && useStakejoyApi) throw new IllegalStateException("Can't use both APIs - choose one");
+        if( ! useHeliumApi && ! useStakejoyApi) useHeliumApi = true;
+
+        if(useStakejoyApi) 
+            HS_BASE = HS_BASE_STAKEJOY;
+        else
+            HS_BASE = HS_BASE_HELIUM;
+
+        logger.info("Using {} API", useHeliumApi ? "Helium" : "Stakejoy");
+
+        HS_ACTIVITY_BASE = HS_BASE+"/v1/hotspots/%s/activity";
+        HS_ACTIVITY_CURSOR = HS_ACTIVITY_BASE + "?min_time=%s&max_time=%s";//&limit=%s";
+        HS_ACTIVITY_DATA = HS_ACTIVITY_BASE + "?cursor=%s";
+        HS_DETAILS = HS_BASE+"/v1/hotspots/%s";
+
+    }
+
     private HttpResponse<String> sendRequest(String url) throws HeliumApiException {
         StopWatch sw = new StopWatch("Helium Api"); 
         sw.start("call");
@@ -63,6 +96,10 @@ public class HeliumApi {
         HttpRequest req = HttpRequest.newBuilder()
             .uri(URI.create(url))
             .setHeader("user-agent", USER_AGENT)
+            .setHeader("cache-control", "no-cache")
+            .setHeader("pragma", "no-cache")
+            .setHeader("accept", "application/json")
+            // .setHeader("accept-encoding", "gzip, deflate, br")
             .build();
 
         HttpResponse<String> resp;
@@ -91,25 +128,6 @@ public class HeliumApi {
         return resp;
     }
 
-    @PostConstruct
-    public void config() {
-        if(useHeliumApi && useStakejoyApi) throw new IllegalStateException("Can't use both APIs - choose one");
-        if( ! useHeliumApi && ! useStakejoyApi) useHeliumApi = true;
-
-        if(useStakejoyApi) 
-            HS_BASE = HS_BASE_STAKEJOY;
-        else
-            HS_BASE = HS_BASE_HELIUM;
-
-        logger.info("Using {} API", useHeliumApi ? "Helium" : "Stakejoy");
-
-        HS_ACTIVITY_BASE = HS_BASE+"/v1/hotspots/%s/activity";
-        HS_ACTIVITY_CURSOR = HS_ACTIVITY_BASE + "?min_time=%s&max_time=%s";//&limit=%s";
-        HS_ACTIVITY_DATA = HS_ACTIVITY_BASE + "?cursor=%s";
-        HS_DETAILS = HS_BASE+"/v1/hotspots/%s";
-
-    }
-
 
     public String getHotspotName(String hotspotAddress) throws HeliumApiException {
         if(null == hotspotDetails) initHotspotDetails(hotspotAddress);
@@ -134,6 +152,7 @@ public class HeliumApi {
      * @param hotspotAddress
      * @param date
      * @return
+     * @throws UnsupportedEncodingException
      * @throws IOException
      * @throws InterruptedException
      */
@@ -141,13 +160,19 @@ public class HeliumApi {
         // Build the URL
         String min_time = format.format(date.withTime(0, 0, 0, 0).toDate());
         String max_time = format.format(date.withTime(23, 59, 59, 999).toDate());
-        // int limit = 2;
-        String url = String.format(HS_ACTIVITY_CURSOR, hotspotAddress, min_time, max_time);
+        try {
+            min_time = URLEncoder.encode(min_time, "utf-8");
+            max_time = URLEncoder.encode(max_time, "utf-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new HeliumApiException("Unexpected", e);
+        }
 
+        String url = String.format(HS_ACTIVITY_CURSOR, hotspotAddress, min_time, max_time);
         // Process the response and extract the cursor hash
         HttpResponse<String> resp = sendRequest(url);
 
         String json = resp.body();
+
         JsonObject jsObj = JsonParser.parseString(json).getAsJsonObject();
         if(jsObj.has("error")) {
             throw new HeliumApiException(jsObj.get("error").getAsString());
