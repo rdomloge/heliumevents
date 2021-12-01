@@ -1,7 +1,5 @@
 package com.domloge.heliumevents;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -26,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ResourceUtils;
 import org.springframework.util.StopWatch;
 
 
@@ -43,6 +40,8 @@ public class HeliumApi {
     private boolean useHeliumApi;
     @Value("${USE_STAKEJOY_API:false}")
     private boolean useStakejoyApi;
+    @Value("${ENCODE_TIMESTAMPS:false}")
+    private boolean encodeTimestamps;
 
     private String HS_BASE;
 
@@ -51,7 +50,7 @@ public class HeliumApi {
     private String HS_ACTIVITY_DATA;
     private String HS_DETAILS;
 
-    private static final DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"); //2021-05-11T01:39:53Z
+    private static final DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"); //2021-05-11T01:39:53Z
 
     @Value("${USER_AGENT:heliumevents}")
     private String USER_AGENT;
@@ -71,11 +70,12 @@ public class HeliumApi {
     @PostConstruct
     public void config() throws IOException {
 
-        int lineNum = (int) (Math.random() * 100);
+        int lineNum = (int) (Math.random() * 300);
         Scanner s = new Scanner(resourceLoader.getResource("classpath:useragents.txt").getInputStream());
         for(int i=0; i < lineNum; i++) s.nextLine();
         USER_AGENT = s.nextLine();
-        logger.debug("Using user agent '{}'", USER_AGENT);
+        logger.debug("Using user agent {} '{}'", lineNum, USER_AGENT);
+        logger.debug((encodeTimestamps?"Encoding":"Leaving")+" timestamps "+(encodeTimestamps?"":"raw"));
 
         if(useHeliumApi && useStakejoyApi) throw new IllegalStateException("Can't use both APIs - choose one");
         if( ! useHeliumApi && ! useStakejoyApi) useHeliumApi = true;
@@ -88,7 +88,7 @@ public class HeliumApi {
         logger.info("Using {} API", useHeliumApi ? "Helium" : "Stakejoy");
 
         HS_ACTIVITY_BASE = HS_BASE+"/v1/hotspots/%s/activity";
-        HS_ACTIVITY_CURSOR = HS_ACTIVITY_BASE + "?min_time=%s&max_time=%s";//&limit=%s";
+        HS_ACTIVITY_CURSOR = HS_ACTIVITY_BASE + "?min_time=%s&max_time=%s&limit=%s";
         HS_ACTIVITY_DATA = HS_ACTIVITY_BASE + "?cursor=%s";
         HS_DETAILS = HS_BASE+"/v1/hotspots/%s";
 
@@ -166,16 +166,18 @@ public class HeliumApi {
      */
     JsonObject fetchHotspotActivityForDate(String hotspotAddress, DateTime date) throws HeliumApiException {
         // Build the URL
-        String min_time = format.format(date.withTime(0, 0, 0, 0).toDate());
-        String max_time = format.format(date.withTime(23, 59, 59, 999).toDate());
-        try {
-            min_time = URLEncoder.encode(min_time, "utf-8");
-            max_time = URLEncoder.encode(max_time, "utf-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new HeliumApiException("Unexpected", e);
+        String min_time = format.format(date.plusDays(-1).withTime(23, 59, 59, 0).toDate());
+        String max_time = format.format(date.withTime(23, 59, 59, 0).toDate());
+        if(encodeTimestamps) {
+            try {
+                min_time = URLEncoder.encode(min_time, "utf-8");
+                max_time = URLEncoder.encode(max_time, "utf-8");
+            } catch (UnsupportedEncodingException e) {
+                throw new HeliumApiException("Unexpected", e);
+            }
         }
 
-        String url = String.format(HS_ACTIVITY_CURSOR, hotspotAddress, min_time, max_time);
+        String url = String.format(HS_ACTIVITY_CURSOR, hotspotAddress, min_time, max_time, 1000);
         // Process the response and extract the cursor hash
         HttpResponse<String> resp = sendRequest(url);
 
