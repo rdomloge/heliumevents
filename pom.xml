@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.domloge</groupId>
 	<artifactId>heliumevents</artifactId>
-	<version>3.0.0</version>
+	<version>4.1.1</version>
 	<name>heliumevents</name>
 	<description>Helium trawler</description>
 	<properties>
