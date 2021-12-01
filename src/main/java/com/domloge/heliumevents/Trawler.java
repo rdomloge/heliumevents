@@ -14,9 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -36,9 +34,12 @@ public class Trawler {
 
     private String hotspotName;
 
+    @Value("${TEST:false}")
+    private boolean testMode;
+
     @PostConstruct
     void prepAndRun() {
-        
+        if(testMode) return;
         try {
             hotspotName = heliumApi.getHotspotName(hotspot);
         } 
@@ -87,8 +88,6 @@ public class Trawler {
             if(null == latestTrawlCompleteDay) latestTrawlCompleteDay = hsBday;
             
             logger.info("Synching from {} for hotspot {}, born on {}", latestTrawlCompleteDay.toString("dd-MMM-yyyy"), hotspotName, hsBday.toString("dd-MMM-yyyy' 'hh:mm"));
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
 
             DateTime dateCursor = latestTrawlCompleteDay.withTime(0, 0, 0, 0);
             
