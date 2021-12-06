@@ -36,14 +36,14 @@ public class HeliumApi {
     private static final String HS_BASE_STAKEJOY = "https://helium-api.stakejoy.com";
     private static final String HS_BASE_HELIUM = "https://api.helium.io";
 
-    @Value("${USE_HELIUM_API:false}")
-    private boolean useHeliumApi;
-    @Value("${USE_STAKEJOY_API:false}")
-    private boolean useStakejoyApi;
+    // @Value("${USE_HELIUM_API:false}")
+    // private boolean useHeliumApi;
+    // @Value("${USE_STAKEJOY_API:false}")
+    // private boolean useStakejoyApi;
     @Value("${ENCODE_TIMESTAMPS:false}")
     private boolean encodeTimestamps;
 
-    private String HS_BASE;
+    // private String API_BASE;
 
     private String HS_ACTIVITY_BASE;
     private String HS_ACTIVITY_CURSOR;
@@ -77,21 +77,25 @@ public class HeliumApi {
         logger.debug("Using user agent {} '{}'", lineNum, USER_AGENT);
         logger.debug((encodeTimestamps?"Encoding":"Leaving")+" timestamps "+(encodeTimestamps?"":"raw"));
 
-        if(useHeliumApi && useStakejoyApi) throw new IllegalStateException("Can't use both APIs - choose one");
-        if( ! useHeliumApi && ! useStakejoyApi) useHeliumApi = true;
+        // if(useHeliumApi && useStakejoyApi) throw new IllegalStateException("Can't use both APIs - choose one");
+        // if( ! useHeliumApi && ! useStakejoyApi) useHeliumApi = true;
 
-        if(useStakejoyApi) 
-            HS_BASE = HS_BASE_STAKEJOY;
-        else
-            HS_BASE = HS_BASE_HELIUM;
+        // if(useStakejoyApi) 
+        //     HS_BASE = HS_BASE_STAKEJOY;
+        // else
+        //     HS_BASE = HS_BASE_HELIUM;
 
-        logger.info("Using {} API", useHeliumApi ? "Helium" : "Stakejoy");
+        // logger.info("Using {} API", useHeliumApi ? "Helium" : "Stakejoy");
 
-        HS_ACTIVITY_BASE = HS_BASE+"/v1/hotspots/%s/activity";
+        
+
+    }
+
+    public void configureUrls(String API_BASE) {
+        HS_ACTIVITY_BASE = API_BASE+"/v1/hotspots/%s/activity";
         HS_ACTIVITY_CURSOR = HS_ACTIVITY_BASE + "?min_time=%s&max_time=%s&limit=%s";
         HS_ACTIVITY_DATA = HS_ACTIVITY_BASE + "?cursor=%s";
-        HS_DETAILS = HS_BASE+"/v1/hotspots/%s";
-
+        HS_DETAILS = API_BASE+"/v1/hotspots/%s";
     }
 
     private HttpResponse<String> sendRequest(String url) throws HeliumApiException {
