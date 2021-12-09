@@ -1,11 +1,11 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: heliumevents-trawler
+  name: heliumevents-trawler-crp
   namespace: heliumevents
 spec:
-  successfulJobsHistoryLimit: 3
-  failedJobsHistoryLimit: 3
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
   schedule: "*/3 * * * *"
   jobTemplate:
     spec:
@@ -13,13 +13,17 @@ spec:
         spec:
           containers:
           - name: heliumevents-trawler
-            image: rdomloge/heliumevents:2.1.1
+            image: rdomloge/heliumevents:4.1.1
             imagePullPolicy: IfNotPresent
             env:
             - name: HOTSPOT
               value: "112Xa4p36ExdVDktAPFKx9zd8EwiMw7vC35hxyqiiYANC527BLiF"
             - name: ES_SERVER_ADDRESS
               value: "http://elasticsearch-service:9200"
+            - name: spring.main.banner-mode
+              value: "off"
             - name: USE_STAKEJOY_API
               value: "false"
+            - name: "logging.level.com.domloge"
+              value: "trace"
           restartPolicy: OnFailure
