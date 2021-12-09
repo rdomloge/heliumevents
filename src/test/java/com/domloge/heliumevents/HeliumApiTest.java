@@ -2,11 +2,9 @@ package com.domloge.heliumevents;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import org.joda.time.DateTime;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
