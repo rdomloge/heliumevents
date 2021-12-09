@@ -84,22 +84,18 @@ public class Trawler {
     public void trawl() {
         try {
             DateTime hsBday = heliumApi.getHotspotBirithday(hotspot);
-            DateTime latestTrawlDateTime = getLatestSuccessfulTrawlCompleteDay(hotspotName);
-            if(null == latestTrawlDateTime) latestTrawlDateTime = hsBday;
-
-            boolean lastRunWasWithStakejoy = getLastRunWasWithStakeJoy(hotspotName);
-            logger.info("Using {} API", lastRunWasWithStakejoy ? "Helium" : "Stakejoy");
+            DateTime latestTrawlCompleteDay = getLatestSuccessfulTrawlCompleteDay(hotspotName);
+            if(null == latestTrawlCompleteDay) latestTrawlCompleteDay = hsBday;
             
-            logger.info("Synching from {} for hotspot {}, born on {}", 
-                latestTrawlDateTime.toString("dd-MMM-yyyy hh:mm"), 
-                hotspotName, 
-                hsBday.toString("dd-MMM-yyyy' 'hh:mm"));
+            logger.info("Synching from {} for hotspot {}, born on {}", latestTrawlCompleteDay.toString("dd-MMM-yyyy"), hotspotName, hsBday.toString("dd-MMM-yyyy' 'hh:mm"));
 
-            while(latestTrawlDateTime.isBefore(new DateTime())) {
-                logger.debug("Fetching events since {}", latestTrawlDateTime.toString("dd-MMM-yyyy"));
+            DateTime dateCursor = latestTrawlCompleteDay.withTime(0, 0, 0, 0);
+            
+            while(dateCursor.isBefore(new DateTime())) {
+                logger.debug("Fetching events for {}", dateCursor.toString("dd-MMM-yyyy"));
                 Stats stats = new Stats();
                 int transactionCount = 0;
-                JsonObject response = heliumApi.fetchHotspotActivityForDate(hotspot, latestTrawlDateTime);
+                JsonObject response = heliumApi.fetchHotspotActivityForDate(hotspot, dateCursor);
                 if(response.has("data")) {
                     transactionCount += processData(response.getAsJsonArray("data"), stats);
                 }
@@ -113,7 +109,7 @@ public class Trawler {
                 }
                 
                 logger.info("{} processed, fetched {} transactions: {} new, {} already known", 
-                    latestTrawlDateTime.toString("dd-MMM-yyyy hh:mm"), 
+                    dateCursor.toString("dd-MMM-yyyy"), 
                     transactionCount,
                     stats.getNewDocs(),
                     stats.getDuplicateDocs());
@@ -157,13 +153,11 @@ public class Trawler {
     }
 
     private static final String LAST_RUN_DATE = "lastRun";
-    private static final String LAST_RUN_WAS_STAKEJOY = "lastRunWasStakejoy";
 
-    private void storeMetadata(String hotspotName, DateTime lastRunDate, boolean lastApiWasStakejoy) {
+    private void storeMetadata(String hotspotName, DateTime lastRunDate) {
         JsonObject metadata = new JsonObject();
         metadata.add(LAST_RUN_DATE, new JsonPrimitive(lastRunDate.getMillis()));
         metadata.add(LAST_RUN_DATE+"HumanReadable", new JsonPrimitive(lastRunDate.toString()));
-        metadata.add(LAST_RUN_WAS_STAKEJOY, new JsonPrimitive(lastApiWasStakejoy));
         esApi.postDoc("metadataindex", hotspotName, metadata.toString());
     }
 
@@ -171,12 +165,6 @@ public class Trawler {
         JsonObject metadata = esApi.getDoc("metadataindex", hotspotName);
         if(null == metadata || ! metadata.has(LAST_RUN_DATE)) return null;
         return new DateTime(metadata.get(LAST_RUN_DATE).getAsLong());
-    }
-
-    private boolean getLastRunWasWithStakeJoy(String hotspotName) {
-        JsonObject metadata = esApi.getDoc("metadataindex", hotspotName);
-        if(null == metadata || ! metadata.has(LAST_RUN_WAS_STAKEJOY)) return true;
-        return metadata.get(LAST_RUN_WAS_STAKEJOY).getAsBoolean();
     }
 
     private void patch(JsonObject heliumDoc) {
