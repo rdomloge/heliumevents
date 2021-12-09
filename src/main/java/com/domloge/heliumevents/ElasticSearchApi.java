@@ -9,6 +9,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -25,6 +27,8 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class ElasticSearchApi {
 
+    private static final Logger logger = LoggerFactory.getLogger(ElasticSearchApi.class);
+
     private RestTemplate restTemplate = new RestTemplate();
 
     @Value(value = "${ES_SERVER_ADDRESS}")
@@ -38,6 +42,7 @@ public class ElasticSearchApi {
     public void config() {
         elasticSearchUrlTemplate = elasticSearchBase + "/%s/_doc/%s";
         esSearchUrlTemplate = elasticSearchBase + "/%s/_search";
+        logger.info("Using ElasticSearch at {}", elasticSearchBase);
     }
     
     public void postDoc(String indexName, String docIdentifier, String docStr) {
@@ -127,5 +132,14 @@ public class ElasticSearchApi {
         String url = String.format(esSearchUrlTemplate, indexName);
         RequestEntity<String> req = new RequestEntity<String>(query, HttpMethod.GET, URI.create(url));
         return restTemplate.exchange(req, String.class);
+    }
+
+    public void patchDoc(String indexName, String docIdentifier, String document) {
+        // Patch the document in ElasticSearch
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> request = new HttpEntity<String>(document, headers);
+        String url = String.format(elasticSearchUrlTemplate, indexName, docIdentifier);
+        restTemplate.put(String.format(url, indexName, docIdentifier), request, String.class);
     }
 }
