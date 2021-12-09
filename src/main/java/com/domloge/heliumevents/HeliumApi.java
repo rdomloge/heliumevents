@@ -3,7 +3,6 @@ package com.domloge.heliumevents;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -36,14 +35,12 @@ public class HeliumApi {
     private static final String HS_BASE_STAKEJOY = "https://helium-api.stakejoy.com";
     private static final String HS_BASE_HELIUM = "https://api.helium.io";
 
-    // @Value("${USE_HELIUM_API:false}")
-    // private boolean useHeliumApi;
-    // @Value("${USE_STAKEJOY_API:false}")
-    // private boolean useStakejoyApi;
-    @Value("${ENCODE_TIMESTAMPS:false}")
-    private boolean encodeTimestamps;
+    @Value("${USE_HELIUM_API:false}")
+    private boolean useHeliumApi;
+    @Value("${USE_STAKEJOY_API:false}")
+    private boolean useStakejoyApi;
 
-    // private String API_BASE;
+    private String HS_BASE;
 
     private String HS_ACTIVITY_BASE;
     private String HS_ACTIVITY_CURSOR;
@@ -75,27 +72,22 @@ public class HeliumApi {
         for(int i=0; i < lineNum; i++) s.nextLine();
         USER_AGENT = s.nextLine();
         logger.debug("Using user agent {} '{}'", lineNum, USER_AGENT);
-        logger.debug((encodeTimestamps?"Encoding":"Leaving")+" timestamps "+(encodeTimestamps?"":"raw"));
 
-        // if(useHeliumApi && useStakejoyApi) throw new IllegalStateException("Can't use both APIs - choose one");
-        // if( ! useHeliumApi && ! useStakejoyApi) useHeliumApi = true;
+        if(useHeliumApi && useStakejoyApi) throw new IllegalStateException("Can't use both APIs - choose one");
+        if( ! useHeliumApi && ! useStakejoyApi) useHeliumApi = true;
 
-        // if(useStakejoyApi) 
-        //     HS_BASE = HS_BASE_STAKEJOY;
-        // else
-        //     HS_BASE = HS_BASE_HELIUM;
+        if(useStakejoyApi) 
+            HS_BASE = HS_BASE_STAKEJOY;
+        else
+            HS_BASE = HS_BASE_HELIUM;
 
-        // logger.info("Using {} API", useHeliumApi ? "Helium" : "Stakejoy");
+        logger.info("Using {} API", useHeliumApi ? "Helium" : "Stakejoy");
 
-        
-
-    }
-
-    public void configureUrls(String API_BASE) {
-        HS_ACTIVITY_BASE = API_BASE+"/v1/hotspots/%s/activity";
-        HS_ACTIVITY_CURSOR = HS_ACTIVITY_BASE + "?min_time=%s&max_time=%s&limit=%s";
+        HS_ACTIVITY_BASE = HS_BASE+"/v1/hotspots/%s/activity";
+        HS_ACTIVITY_CURSOR = HS_ACTIVITY_BASE + "?min_time=%s&max_time=%s";
         HS_ACTIVITY_DATA = HS_ACTIVITY_BASE + "?cursor=%s";
-        HS_DETAILS = API_BASE+"/v1/hotspots/%s";
+        HS_DETAILS = HS_BASE+"/v1/hotspots/%s";
+
     }
 
     private HttpResponse<String> sendRequest(String url) throws HeliumApiException {
@@ -108,7 +100,6 @@ public class HeliumApi {
             .setHeader("cache-control", "no-cache")
             .setHeader("pragma", "no-cache")
             .setHeader("accept", "application/json")
-            // .setHeader("accept-encoding", "gzip, deflate, br")
             .build();
 
         HttpResponse<String> resp;
@@ -171,17 +162,15 @@ public class HeliumApi {
     JsonObject fetchHotspotActivityForDate(String hotspotAddress, DateTime date) throws HeliumApiException {
         // Build the URL
         String min_time = format.format(date.plusDays(-1).withTime(23, 59, 59, 0).toDate());
-        String max_time = format.format(date.withTime(23, 59, 59, 0).toDate());
-        if(encodeTimestamps) {
-            try {
-                min_time = URLEncoder.encode(min_time, "utf-8");
-                max_time = URLEncoder.encode(max_time, "utf-8");
-            } catch (UnsupportedEncodingException e) {
-                throw new HeliumApiException("Unexpected", e);
-            }
-        }
 
-        String url = String.format(HS_ACTIVITY_CURSOR, hotspotAddress, min_time, max_time, 1000);
+        DateTime endTimeDate = date.withTime(23, 59, 59, 0);
+        if(endTimeDate.isAfter(new DateTime())) {
+            logger.debug("Adjusting end time to [now]");
+            endTimeDate = new DateTime().minusMinutes(1);
+        }
+        String max_time = format.format(endTimeDate.toDate());
+        String url = String.format(HS_ACTIVITY_CURSOR, hotspotAddress, min_time, max_time);
+
         // Process the response and extract the cursor hash
         HttpResponse<String> resp = sendRequest(url);
 
