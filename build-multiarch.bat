@@ -1,1 +1,1 @@
-docker buildx build --platform linux/amd64,linux/arm64 -t rdomloge/heliumevents:4.1.1 . --push
+docker buildx build --platform linux/amd64,linux/arm64 -t rdomloge/heliumevents:4.1.3 . --push
