@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: fluentd
-  namespace: kube-system
+  namespace: heliumevents
   labels:
       k8s-app: fluentd-logging
 spec:
@@ -14,7 +14,7 @@ spec:
       labels:
         name: fluentd-elasticsearch
     spec:
-      serviceAccountName: fluentd
+      #serviceAccountName: fluentd
       tolerations:
       # this toleration is to have the daemonset runnable on master nodes
       # remove it if your masters can't run pods
