@@ -20,6 +20,8 @@ spec:
               value: "112Xa4p36ExdVDktAPFKx9zd8EwiMw7vC35hxyqiiYANC527BLiF"
             - name: ES_SERVER_ADDRESS
               value: "http://elasticsearch-service:9200"
+            - name: spring.main.banner-mode
+              value: "off"
             - name: USE_STAKEJOY_API
               value: "false"
             - name: "logging.level.com.domloge"
