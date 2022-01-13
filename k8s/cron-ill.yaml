@@ -1,0 +1,111 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: heliumevents-trawler-ssd-illionaire
+  namespace: heliumevents
+spec:
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  schedule: "*/30 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: heliumevents-trawler
+            image: rdomloge/heliumevents:4.1.3
+            imagePullPolicy: Always
+            env:
+            - name: HOTSPOT
+              value: "11BGz28giSRAkbA7WERGGPWdRKTezNdMUKZ9ozKvF8iRdAiUfkc"
+            - name: ES_SERVER_ADDRESS
+              value: "http://elasticsearch-service:9200"
+            - name: USE_STAKEJOY_API
+              value: "false"
+            - name: "logging.level.com.domloge"
+              value: "INFO"
+          restartPolicy: OnFailure
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: heliumevents-trawler-blw-illionaire
+  namespace: heliumevents
+spec:
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  schedule: "*/30 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: heliumevents-trawler
+            image: rdomloge/heliumevents:4.1.3
+            imagePullPolicy: Always
+            env:
+            - name: HOTSPOT
+              value: "11tAF1FWPNMARRJ8ePDpyoqZUbZN39fxz8ghTJ6fhPEAQYbxTqU"
+            - name: ES_SERVER_ADDRESS
+              value: "http://elasticsearch-service:9200"
+            - name: USE_STAKEJOY_API
+              value: "false"
+            - name: "logging.level.com.domloge"
+              value: "INFO"
+          restartPolicy: OnFailure
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: heliumevents-trawler-sjf-illionaire
+  namespace: heliumevents
+spec:
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  schedule: "*/30 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: heliumevents-trawler
+            image: rdomloge/heliumevents:4.1.3
+            imagePullPolicy: Always
+            env:
+            - name: HOTSPOT
+              value: "11xBFarCm3s7HMBng8K2Je3CJ4xpPwBVD1WFiVJqcnbaSpCPich"
+            - name: ES_SERVER_ADDRESS
+              value: "http://elasticsearch-service:9200"
+            - name: USE_STAKEJOY_API
+              value: "false"
+            - name: "logging.level.com.domloge"
+              value: "INFO"
+          restartPolicy: OnFailure
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: heliumevents-trawler-htc-illionaire
+  namespace: heliumevents
+spec:
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  schedule: "*/30 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: heliumevents-trawler
+            image: rdomloge/heliumevents:4.1.3
+            imagePullPolicy: Always
+            env:
+            - name: HOTSPOT
+              value: "113sKGwJGY4LyPum2LXffYYj7wp7oJxJ4dLDwtZaRdCSopYwpNL"
+            - name: ES_SERVER_ADDRESS
+              value: "http://elasticsearch-service:9200"
+            - name: USE_STAKEJOY_API
+              value: "false"
+            - name: "logging.level.com.domloge"
+              value: "INFO"
+          restartPolicy: OnFailure
