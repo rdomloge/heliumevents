@@ -21,7 +21,7 @@
 
 # (Required)
 # Rule name, must be unique
-name: New country login
+name: Gap change detection
 
 # (Required)
 # Type of alert.
@@ -42,7 +42,7 @@ ignore_null: true
 
 # (Required, change specific)
 # The change must occur in two documents with the same query_key
-query_key: sync
+query_key: _index
 
 # (Required, change specific)
 # The value of compare_key must change in two events that are less than timeframe apart to trigger an alert
@@ -53,10 +53,7 @@ timeframe:
 # A list of Elasticsearch filters used for find events
 # These filters are joined with AND and nested in a filtered query
 # For more info: https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html
-filter:
-- query:
-    query_string:
-      query: "document_type: _doc"
+filter: []
 
 # (Required)
 # The alert is use when a match is found

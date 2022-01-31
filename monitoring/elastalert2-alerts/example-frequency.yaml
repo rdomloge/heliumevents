@@ -1,0 +1,63 @@
+# Alert when the rate of events exceeds a threshold
+
+# (Optional)
+# Elasticsearch host
+# es_host: elasticsearch.example.com
+
+# (Optional)
+# Elasticsearch port
+# es_port: 14900
+
+# (OptionaL) Connect with SSL to Elasticsearch
+#use_ssl: True
+
+# (Optional) basic-auth username and password for Elasticsearch
+#es_username: someusername
+#es_password: somepassword
+
+# (Required)
+# Rule name, must be unique
+name: Example frequency rule
+
+# (Required)
+# Type of alert.
+# the frequency rule type alerts when num_events events occur with timeframe time
+type: frequency
+
+# (Required)
+# Index to search, wildcard supported
+index: filebeat-*
+
+# (Required, frequency specific)
+# Alert when this many documents matching the query occur within a timeframe
+num_events: 50
+
+# (Required, frequency specific)
+# num_events must occur within this amount of time to trigger an alert
+timeframe:
+  hours: 4
+
+# (Required)
+# A list of Elasticsearch filters used for find events
+# These filters are joined with AND and nested in a filtered query
+# For more info: https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html
+filter: []
+
+# (Required)
+alert:
+- discord
+discord_webhook_url: "https://discord.com/api/webhooks/937789576423014471/JR_4h5z512eiF5xnEQtkjHm-fzpKGvVgUkgzgWhfWmSVRUOEJwaepMjUsPmU-fEYSP8Y"
+
+# ----- Optional Section -----
+
+#discord_proxy: "proxy_address"
+
+# Must be in "" and must be valid emoji supported by discord.
+discord_emoji_title: ":lock:"
+
+# Must be an hexadecimal value according to the exemple below
+discord_embed_color: 0xE24D42
+
+# This content will be displayed at the very end of your embed message. If you don't add one of these 2 lines, the footer will not be added.
+discord_embed_footer: "Message sent by ElastAlert from your computer"
+discord_embed_icon_url: "https://humancoders-formations.s3.amazonaws.com/uploads/course/logo/38/thumb_bigger_formation-elasticsearch.png"
