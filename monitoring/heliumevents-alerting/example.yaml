@@ -1,0 +1,10 @@
+# Alert when the rate of events exceeds a threshold
+# Rule name, must be unique
+name: Range rule, suitable for detecting bad gaps
+
+# the frequency rule type alerts when num_events events occur with timeframe time
+field: gap
+min: -100
+max: 10
+webhook: ***
+ignoreSslErrors: true
