@@ -46,7 +46,7 @@ filter: []
 # (Required)
 alert:
 - discord
-discord_webhook_url: "https://discord.com/api/webhooks/937789576423014471/JR_4h5z512eiF5xnEQtkjHm-fzpKGvVgUkgzgWhfWmSVRUOEJwaepMjUsPmU-fEYSP8Y"
+discord_webhook_url: "****"
 
 # ----- Optional Section -----
 
