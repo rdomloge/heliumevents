@@ -31,7 +31,7 @@ field = configdoc['field']
 min = configdoc['min']
 max = configdoc['max']
 webhook = configdoc['webhook']
-title = configdoc['title'] or "Range issue"
+title = configdoc.get('title', "Range issue")
 ignoreSslErrors = configdoc['ignoreSslErrors']
 
 print("Using field {}, min {}, max {} and webhook {}".format(field, min, max, webhook))
