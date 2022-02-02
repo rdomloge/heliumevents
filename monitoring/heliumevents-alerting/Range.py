@@ -31,7 +31,9 @@ field = configdoc['field']
 min = configdoc['min']
 max = configdoc['max']
 webhook = configdoc['webhook']
+title = configdoc['title'] or "Range issue"
 ignoreSslErrors = configdoc['ignoreSslErrors']
+
 print("Using field {}, min {}, max {} and webhook {}".format(field, min, max, webhook))
 
 for line in sys.stdin:
@@ -42,14 +44,12 @@ inputdoc = json.loads(inputdoc)
 
 fieldValue = inputdoc[field]
 print("{} value {}".format(field, fieldValue))
-if(fieldValue < min):
-    print("{} {} is too low".format(field, fieldValue))
-    requests.post(webhook, headers={"Content-Type": "application/json"}, data = {"username":"Range issue", "content": "{} is lower than {} :: {}".format(field, min, fieldValue), verify:ignoreSslErrors})
-elif(fieldValue > max):
-    print("{} {} is too high".format(field, fieldValue))
-    body = {}
-    body['content'] = "{} {} is higher than {}".format(field, fieldValue, max)
-    body['username'] = "Range issue"
+body = {}
+body['username'] = title
+
+if(fieldValue > max or fieldValue < min):
+    print("{} {} is too {}".format(field, fieldValue, "low" if fieldValue < min else "high"))
+    body['content'] = "{} {} is not between {} and {}".format(field, fieldValue, min, max)
     response = requests.post(webhook, 
         data = json.dumps(body),
         headers={"content-type": "application/json"})
