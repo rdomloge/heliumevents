@@ -47,6 +47,8 @@ if(fieldValue < min):
     requests.get(webhook, headers={"Content-Type": "application/json"}, data = {"username":"Range issue", "content": "{} is lower than {} :: {}".format(field, min, fieldValue), verify:ignoreSslErrors})
 elif(fieldValue > max):
     print("{} {} is too high".format(field, fieldValue))
-    requests.get(webhook, verify=False, headers={"Content-Type": "application/json"}, data = {"username":"Range issue", "content": "{} is higher than {} :: {}".format(field, max, fieldValue)})
+    requests.get(webhook, 
+        data = {"username":"Range issue", "content": "{} is higher than {} :: {}".format(field, max, fieldValue)},
+        headers={"content-type": "application/json"})
 else:
     print("{} {} is acceptable".format(field, fieldValue))
