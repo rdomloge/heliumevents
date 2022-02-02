@@ -32,7 +32,6 @@ min = configdoc['min']
 max = configdoc['max']
 webhook = configdoc['webhook']
 title = configdoc.get('title', "Range issue")
-ignoreSslErrors = configdoc['ignoreSslErrors']
 
 print("Using field {}, min {}, max {} and webhook {}".format(field, min, max, webhook))
 
@@ -53,6 +52,6 @@ if(fieldValue > max or fieldValue < min):
     response = requests.post(webhook, 
         data = json.dumps(body),
         headers={"content-type": "application/json"})
-    print("Webhook called '{}' code, '{}' message".format(response.status_code, response.content))
+    print("Webhook called response '{}', message: '{}'".format(response.status_code, response.content))
 else:
     print("{} {} is acceptable".format(field, fieldValue))
