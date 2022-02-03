@@ -78,6 +78,6 @@ if(fieldValue != currentValue):
         headers={"content-type": "application/json"})
     print("Webhook called response '{}', message: '{}'".format(response.status_code, response.content))
 else:
-    print("{} is unchanged at {}".format(fieldPath, fieldValue))
+    print("{} is unchanged at '{}'".format(fieldPath, fieldValue))
 
 
