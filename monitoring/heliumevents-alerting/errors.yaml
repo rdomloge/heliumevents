@@ -1,0 +1,10 @@
+
+name: Change rule, suitable for detecting changes to fields
+
+# the frequency rule type alerts when num_events events occur with timeframe time
+field: 
+- errors
+stateIdentifier: errors
+webhook: http://banana.com
+title: Miner has errors
+es_addr: http://10.0.0.10:9200
