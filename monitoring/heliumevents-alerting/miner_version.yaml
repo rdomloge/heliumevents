@@ -3,8 +3,9 @@ name: Change rule, suitable for detecting changes to fields
 
 # the frequency rule type alerts when num_events events occur with timeframe time
 field: 
-- ota_version
-stateIdentifier: ota_version
+- miner
+- Image
+stateIdentifier: miner_version
 webhook: http://banana.com
-title: OTA version changed
+title: Miner version changed
 es_addr: http://10.0.0.10:9200

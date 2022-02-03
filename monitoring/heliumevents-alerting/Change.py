@@ -25,7 +25,7 @@ with open(sys.argv[1], "r") as stream:
     except yaml.YAMLError as exc:
         print(exc)
 
-field = configdoc['field']
+fieldPath = configdoc['field']
 webhook = configdoc['webhook']
 stateIdentifier = configdoc['stateIdentifier']
 title = configdoc.get('title', "Change detected")
@@ -57,7 +57,13 @@ for line in sys.stdin:
 
 inputdoc = json.loads(inputdoc)
 
-fieldValue = inputdoc[field]
+def extractValue(fields):
+    doc = inputdoc
+    for field in fields:
+        doc = doc[field]
+    return doc
+fieldValue = extractValue(fieldPath)
+
 print("{} value {}".format(field, fieldValue))
 body = {}
 body['username'] = title
@@ -65,7 +71,7 @@ body['username'] = title
 currentValue = load_previous_state(stateIdentifier)
 
 if(fieldValue != currentValue):
-    print("{} has changed from {} to {}".format(field, currentValue, fieldValue))
+    print("{} has changed from {} to {}".format(fieldPath, currentValue, fieldValue))
     save_new_state(stateIdentifier, fieldValue)
     body['content'] = "{} has changed from {} to {}".format(field, currentValue, fieldValue)
     response = requests.post(webhook, 
@@ -73,6 +79,6 @@ if(fieldValue != currentValue):
         headers={"content-type": "application/json"})
     print("Webhook called response '{}', message: '{}'".format(response.status_code, response.content))
 else:
-    print("{} is unchanged at {}".format(field, fieldValue))
+    print("{} is unchanged at {}".format(fieldPath, fieldValue))
 
 
