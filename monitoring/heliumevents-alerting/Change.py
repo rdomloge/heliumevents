@@ -31,7 +31,7 @@ stateIdentifier = configdoc['stateIdentifier']
 title = configdoc.get('title', "Change detected")
 es_addr = configdoc['es_addr']
 
-print("Monitoring field {}, for change and using webhook {}".format(fieldPath, webhook))
+print("Monitoring field {}, for change and using webhook".format(fieldPath))
 
 def load_previous_state(stateIdentifier):
     response = requests.get('{}/heliumevents-alerts-state/_doc/change-{}/_source'.format(es_addr, stateIdentifier))
@@ -64,7 +64,7 @@ def extractValue(fields):
     return doc
 fieldValue = extractValue(fieldPath)
 
-print("{} value {}".format(field, fieldValue))
+print("{} value {}".format(fieldPath, fieldValue))
 body = {}
 body['username'] = title
 
