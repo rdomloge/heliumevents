@@ -64,7 +64,6 @@ def extractValue(fields):
     return doc
 fieldValue = extractValue(fieldPath)
 
-print("{} value {}".format(fieldPath, fieldValue))
 body = {}
 body['username'] = title
 
