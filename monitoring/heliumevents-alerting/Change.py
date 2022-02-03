@@ -31,7 +31,7 @@ stateIdentifier = configdoc['stateIdentifier']
 title = configdoc.get('title', "Change detected")
 es_addr = configdoc['es_addr']
 
-print("Monitoring field {}, for change and using webhook {}".format(field, webhook))
+print("Monitoring field {}, for change and using webhook {}".format(fieldPath, webhook))
 
 def load_previous_state(stateIdentifier):
     response = requests.get('{}/heliumevents-alerts-state/_doc/change-{}/_source'.format(es_addr, stateIdentifier))
@@ -49,7 +49,7 @@ def save_new_state(stateIdentifier, newValue):
     response = requests.post('{}/heliumevents-alerts-state/_doc/change-{}'.format(es_addr, stateIdentifier), data = json.dumps(body),
         headers={"content-type": "application/json"})
     if(response.status_code != 201): print("Could not save new value! Response from ES was {} with message '{}'".format(response.status_code, response.content))
-    else: print("New value {} for field {} stored".format(field, newValue))
+    else: print("New value {} for field {} stored".format(fieldPath, newValue))
 
 for line in sys.stdin:
     inputdoc += line
@@ -73,7 +73,7 @@ currentValue = load_previous_state(stateIdentifier)
 if(fieldValue != currentValue):
     print("{} has changed from {} to {}".format(fieldPath, currentValue, fieldValue))
     save_new_state(stateIdentifier, fieldValue)
-    body['content'] = "{} has changed from {} to {}".format(field, currentValue, fieldValue)
+    body['content'] = "{} has changed from {} to {}".format(fieldPath, currentValue, fieldValue)
     response = requests.post(webhook, 
         data = json.dumps(body),
         headers={"content-type": "application/json"})
