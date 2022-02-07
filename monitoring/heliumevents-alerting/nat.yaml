@@ -1,0 +1,11 @@
+
+name: Change rule, suitable for detecting changes to fields
+
+# the frequency rule type alerts when num_events events occur with timeframe time
+field: 
+- p2p_status
+regex: \|nat_type \|(.*)\|
+stateIdentifier: miner_nat
+webhook: http://banana.com
+title: Miner nat changed
+es_addr: http://10.0.0.10:9200
