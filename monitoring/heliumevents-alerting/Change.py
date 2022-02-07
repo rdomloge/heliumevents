@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
 import fileinput
+from typing import Type
 import yaml
 import sys
 import json
 import requests
+import re
 
 inputdoc = ""
 configdoc = ""
@@ -26,6 +28,7 @@ with open(sys.argv[1], "r") as stream:
         print(exc)
 
 fieldPath = configdoc['field']
+regex = configdoc.get('regex')
 webhook = configdoc['webhook']
 stateIdentifier = configdoc['stateIdentifier']
 title = configdoc.get('title', "Change detected")
@@ -61,6 +64,16 @@ def extractValue(fields):
     doc = inputdoc
     for field in fields:
         doc = doc[field]
+    print("Field locates as '{}' which is a {}".format(doc, type(doc)))
+    if(isinstance(doc, list)):
+        print("Using regex '{}' to find matching list value".format(regex))
+        for item in doc:
+            print("Testing '{}' which is a {}".format(item, type(item)))
+            m = re.search("\|nat_type \|(.*)\|", item)
+            if(m):
+                print("List item '{}' matches".format(item))
+                g = m.group(0)
+                return g
     return doc
 fieldValue = extractValue(fieldPath)
 
