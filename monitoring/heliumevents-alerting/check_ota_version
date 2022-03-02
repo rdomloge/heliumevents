@@ -1,0 +1,2 @@
+DIR=/home/ubuntu/repos/heliumevents/monitoring/heliumevents-alerting
+curl -s 'http://10.0.0.10:9200/clean-rose-parakeet-miner/_doc/info/_source' | python3 $DIR/Change.py $DIR/ota_version.yaml
