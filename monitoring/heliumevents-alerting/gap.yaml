@@ -4,7 +4,7 @@ name: Range rule, suitable for detecting bad gaps
 
 # the frequency rule type alerts when num_events events occur with timeframe time
 field: gap
-min: -100
+min: -30
 max: 10
-webhook: ***
-title: Range issue
+webhook: https://discord.com/api/webhooks/938530120107442256/PyzJ1osBLxHpey_jpdyhGdPCX7Tv4otffUYWS3Sb2qrI9CavMS_ifRTzSBh9Osya7pVs
+title: Miner is out of sync

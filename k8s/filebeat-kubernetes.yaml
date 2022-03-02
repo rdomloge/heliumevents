@@ -109,6 +109,10 @@ spec:
         - name: varlog
           mountPath: /var/log
           readOnly: true
+      tolerations:
+      - key: "k8s-master-1"
+        operator: "Exists"
+        effect: "NoSchedule"
       volumes:
       - name: config
         configMap:

@@ -10,3 +10,16 @@ spec:
   resources:
     requests:
       storage: 10Gi
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: heliumevents-config
+  namespace: heliumevents
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 1Mi

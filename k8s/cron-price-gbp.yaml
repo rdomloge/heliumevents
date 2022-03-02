@@ -1,12 +1,12 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: heliumevents-miner-crp-sync
+  name: heliumevents-prices-gbp
   namespace: heliumevents
 spec:
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 1
-  schedule: "0 */6 * * *"
+  schedule: "*/3 * * * *"
   jobTemplate:
     spec:
       template:
@@ -19,7 +19,7 @@ spec:
             - /bin/sh
             - -c
             - >
-                curl -s 'http://10.0.0.156/status.json' 
+                curl -X GET -H 'accept: application/json' -s 'https://api.coingecko.com/api/v3/simple/price?ids=helium&vs_currencies=gbp' 
                 | 
-                curl  -H 'Content-Type: application/json' -X PUT --data-binary @- 'http://elasticsearch-service:9200/clean-rose-parakeet-miner/_doc/sync'
+                curl  -H 'Content-Type: application/json' -X PUT --data-binary @- 'http://elasticsearch-service:9200/clean-rose-parakeet-prices/_doc/gbp?pipeline=add-time-to-prices'
           restartPolicy: Never

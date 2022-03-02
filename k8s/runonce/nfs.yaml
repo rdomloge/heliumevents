@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: heliumevents-nfs
+  name: heliumevents-data
 spec:
   capacity:
     storage: 10Gi
@@ -11,3 +11,17 @@ spec:
   nfs:
     server: 10.0.0.60
     path: "/volume1/heliumevents"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: heliumevents-config
+spec:
+  capacity:
+    storage: 1Mi
+  storageClassName: standard
+  accessModes:
+  - ReadWriteOnce
+  nfs:
+    server: 10.0.0.60
+    path: "/volume1/heliumevents/config"

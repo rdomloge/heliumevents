@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: heliumevents-prices-usd
+  namespace: heliumevents
+spec:
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  schedule: "*/3 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: curl-command
+            image: curlimages/curl
+            imagePullPolicy: Always
+            args: 
+            - /bin/sh
+            - -c
+            - >
+                curl -X GET -H 'accept: application/json' -s 'https://api.coingecko.com/api/v3/simple/price?ids=helium&vs_currencies=usd' 
+                | 
+                curl  -H 'Content-Type: application/json' -X PUT --data-binary @- 'http://elasticsearch-service:9200/clean-rose-parakeet-prices/_doc/usd?pipeline=add-time-to-prices'
+          restartPolicy: Never

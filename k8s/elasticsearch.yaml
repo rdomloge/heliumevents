@@ -57,7 +57,12 @@ spec:
           volumeMounts:
           - name: heliumevents-data
             mountPath: /usr/share/elasticsearch/data
+          - name: elasticsearch-config
+            mountPath: /usr/share/elasticsearch/config/
       volumes:
       - name: heliumevents-data
         persistentVolumeClaim:
           claimName: heliumevents-data
+      - name: elasticsearch-config
+        persistentVolumeClaim:
+          claimName: heliumevents-config
