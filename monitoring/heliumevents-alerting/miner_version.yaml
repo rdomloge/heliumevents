@@ -7,5 +7,5 @@ field:
 - Image
 es_addr: http://10.0.0.10:9200
 stateIdentifier: miner_version
-webhook: https://discord.com/api/webhooks/938530120107442256/PyzJ1osBLxHpey_jpdyhGdPCX7Tv4otffUYWS3Sb2qrI9CavMS_ifRTzSBh9Osya7pVs
+webhook: https://discord.com/api/webhooks/948711674402205717/55W-hoN95bW47LWmqoZoiWmgxEy3-GoZ9OwoxkbD-1aVh15do5uyi5ZLPIdAjbVbs7z3
 title: Miner version changed

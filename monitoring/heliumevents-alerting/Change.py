@@ -51,8 +51,8 @@ def save_new_state(stateIdentifier, newValue):
     body['value'] = newValue
     response = requests.post('{}/heliumevents-alerts-state/_doc/change-{}'.format(es_addr, stateIdentifier), data = json.dumps(body),
         headers={"content-type": "application/json"})
-    if(response.status_code != 201): print("Could not save new value! Response from ES was {} with message '{}'".format(response.status_code, response.content))
-    else: print("New value {} for field {} stored".format(newValue, fieldPath))
+    if(200 <= response.status_code <= 299): print("New value {} for field {} stored".format(newValue, fieldPath))
+    else: print("Could not save new value! Response from ES was {} with message '{}'".format(response.status_code, response.content))
 
 for line in sys.stdin:
     inputdoc += line
