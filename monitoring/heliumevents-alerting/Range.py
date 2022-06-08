@@ -8,6 +8,7 @@ import requests
 
 inputdoc = ""
 configdoc = ""
+secretsdoc = ""
 
 field =""
 min =""
@@ -27,10 +28,16 @@ with open(sys.argv[1], "r") as stream:
     except yaml.YAMLError as exc:
         print(exc)
 
+with open(sys.argv[2], "r") as stream:
+    try:
+        secretsdoc = yaml.safe_load(stream)
+    except yaml.YAMLError as exc:
+        print(exc)
+
 field = configdoc['field']
 min = configdoc['min']
 max = configdoc['max']
-webhook = configdoc['webhook']
+webhook = secretsdoc['webhook']
 title = configdoc.get('title', "Range issue")
 
 print("Using field {}, min {}, max {} and webhook {}".format(field, min, max, webhook))

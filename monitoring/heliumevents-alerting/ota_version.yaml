@@ -5,6 +5,5 @@ name: Change rule, suitable for detecting changes to fields
 field: 
 - ota_version
 stateIdentifier: ota_version
-webhook: https://discord.com/api/webhooks/948711674402205717/55W-hoN95bW47LWmqoZoiWmgxEy3-GoZ9OwoxkbD-1aVh15do5uyi5ZLPIdAjbVbs7z3
 title: OTA version changed
 es_addr: http://10.0.0.10:9200

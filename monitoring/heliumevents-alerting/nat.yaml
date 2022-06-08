@@ -6,6 +6,5 @@ field:
 - p2p_status
 regex: \|nat_type \|(.*)\|
 stateIdentifier: miner_nat
-webhook: https://discord.com/api/webhooks/948711674402205717/55W-hoN95bW47LWmqoZoiWmgxEy3-GoZ9OwoxkbD-1aVh15do5uyi5ZLPIdAjbVbs7z3
 title: Miner NAT changed
 es_addr: http://10.0.0.10:9200
