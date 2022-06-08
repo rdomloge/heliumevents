@@ -10,6 +10,7 @@ import re
 
 inputdoc = ""
 configdoc = ""
+secretsdoc = ""
 
 field =""
 webhook =""
@@ -27,9 +28,15 @@ with open(sys.argv[1], "r") as stream:
     except yaml.YAMLError as exc:
         print(exc)
 
+with open(sys.argv[2], "r") as stream:
+    try:
+        secretsdoc = yaml.safe_load(stream)
+    except yaml.YAMLError as exc:
+        print(exc)
+
 fieldPath = configdoc['field']
 regex = configdoc.get('regex')
-webhook = configdoc['webhook']
+webhook = secretsdoc['webhook']
 stateIdentifier = configdoc['stateIdentifier']
 title = configdoc.get('title', "Change detected")
 es_addr = configdoc['es_addr']
