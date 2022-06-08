@@ -13,7 +13,7 @@ spec:
         spec:
           containers:
           - name: heliumevents-trawler
-            image: rdomloge/heliumevents:4.1.3
+            image: rdomloge/heliumevents:4.2.0
             imagePullPolicy: Always
             env:
             - name: HOTSPOT
