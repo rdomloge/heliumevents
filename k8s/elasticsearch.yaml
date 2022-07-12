@@ -28,10 +28,10 @@ spec:
           resources:
             requests:
               cpu: "100m"
-              memory: "512Mi"
+              memory: "4096Mi"
             limits:
               cpu: "4000m"
-              memory: "2048Mi"
+              memory: "4096Mi"
           ports:
             - containerPort: 9200
               name: api
