@@ -23,3 +23,13 @@ spec:
                 | 
                 curl  -H 'Content-Type: application/json' -X PUT --data-binary @- 'http://elasticsearch-service:9200/clean-rose-parakeet-prices/_doc/gbp?pipeline=add-time-to-prices'
           restartPolicy: Never
+          tolerations:
+          - key: "cpu"
+            operator: "Equal"
+            value: "low"
+          - key: "memory"
+            operator: "Equal"
+            value: "low"
+          - key: "bit"
+            operator: "Equal"
+            value: "32"

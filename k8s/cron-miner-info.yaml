@@ -21,5 +21,15 @@ spec:
             - >
                 curl -s 'http://10.0.0.156/miner.json' 
                 | 
-                curl  -H 'Content-Type: application/json' -X PUT --data-binary @- 'http://elasticsearch-service:9200/clean-rose-parakeet-miner/_doc/info'
+                curl  -H 'Content-Type: application/json' -X POST --data-binary @- 'http://elasticsearch-service:9200/clean-rose-parakeet-miner/_doc?pipeline=extract_temp'
           restartPolicy: Never
+          tolerations:
+          - key: "cpu"
+            operator: "Equal"
+            value: "low"
+          - key: "memory"
+            operator: "Equal"
+            value: "low"
+          - key: "bit"
+            operator: "Equal"
+            value: "32"

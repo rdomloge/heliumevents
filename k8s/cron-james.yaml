@@ -27,3 +27,12 @@ spec:
             - name: "ENCODE_TIMESTAMPS"
               value: "true"
           restartPolicy: OnFailure
+          tolerations:
+            - key: "cpu"
+              operator: "Equal"
+              value: "low"
+            - key: "memory"
+              operator: "Equal"
+              value: "low"
+              
+              
