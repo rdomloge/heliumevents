@@ -1,2 +1,9 @@
 DIR=/home/ubuntu/repos/heliumevents/monitoring/heliumevents-alerting
-curl -s 'http://10.0.0.10:9200/clean-rose-parakeet-miner/_doc/info/_source' | python3 $DIR/Change.py $DIR/miner_version.yaml $DIR/secrets.yaml
+QUERY='{"size": 1, "sort": {"timestamp": "desc"}, "query": {"match_all": {}} }'
+HEADER='Content-Type: application/json'
+URL=http://10.0.0.10:9200/clean-rose-parakeet-miner/_search?filter_path=hits.hits._source
+
+echo -vs -H "'$HEADER'" -X POST -d "'$QUERY'" $URL 
+#| python3 $DIR/Change.py $DIR/miner_version.yaml $DIR/secrets.yaml
+
+# curl -s -H 'Content-Type: application/json' -X POST -d '{"size": 1, "sort": {"timestamp": "desc"}, "query": {"match_all": {}} }' 'http://10.0.0.10:9200/clean-rose-parakeet-miner/_search?filter_path=hits.hits._source' | python3 $DIR/Change.py $DIR/miner_version.yaml $DIR/secrets.yaml
