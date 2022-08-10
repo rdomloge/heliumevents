@@ -69,6 +69,9 @@ inputdoc = json.loads(inputdoc)
 
 def extractValue(fields):
     doc = inputdoc
+    if(doc['hits']):
+        print("Grabbing the source of the search results' first result")
+        doc = doc['hits']['hits'][0]['_source']
     for field in fields:
         doc = doc[field]
     print("Field locates as '{}' which is a {}".format(doc, type(doc)))
