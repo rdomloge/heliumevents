@@ -14,6 +14,10 @@ spec:
           containers:
           - name: heliumevents-trawler
             image: rdomloge/heliumevents:4.2.0
+            resources:
+              requests:
+                memory: "150Mi"
+                cpu: "250m"
             imagePullPolicy: Always
             env:
             - name: HOTSPOT
@@ -26,4 +30,11 @@ spec:
               value: "false"
             - name: "logging.level.com.domloge"
               value: "INFO"
-          restartPolicy: OnFailure
+          restartPolicy: Never
+          tolerations:
+            - key: "cpu"
+              operator: "Equal"
+              value: "low"
+            - key: "memory"
+              operator: "Equal"
+              value: "low"
