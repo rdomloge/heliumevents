@@ -14,6 +14,10 @@ spec:
           containers:
           - name: heliumevents-trawler
             image: rdomloge/heliumevents:4.2.0
+            resources:
+              requests:
+                memory: "500Mi"
+                cpu: "250m"
             imagePullPolicy: IfNotPresent
             env:
             - name: HOTSPOT
@@ -26,7 +30,7 @@ spec:
               value: "off"
             - name: "ENCODE_TIMESTAMPS"
               value: "true"
-          restartPolicy: OnFailure
+          restartPolicy: Never
           tolerations:
             - key: "cpu"
               operator: "Equal"
