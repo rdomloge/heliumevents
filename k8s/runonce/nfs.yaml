@@ -4,7 +4,7 @@ metadata:
   name: heliumevents-data
 spec:
   capacity:
-    storage: 10Gi
+    storage: 20Gi
   storageClassName: standard
   accessModes:
   - ReadWriteOnce
